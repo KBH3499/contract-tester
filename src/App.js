@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserProvider, Contract, ethers } from "ethers";
 import "./App.css";
+import logo from "./assets/logo.png"; // Ensure you have the logo in the correct path
 
 function App() {
   const [contractAddress, setContractAddress] = useState("");
@@ -14,11 +15,11 @@ function App() {
   const [loadingStates, setLoadingStates] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
 
-  useEffect(()=>{
+  useEffect(() => {
     setTimeout(() => {
-      setErrorMessages({})
+      setErrorMessages({});
     }, 5000);
-  },[])
+  }, []);
 
   // Handle connecting to the wallet
   const connectWallet = async () => {
@@ -64,10 +65,15 @@ function App() {
 
       // Parse the ABI to categorize functions
       const readFuncs = parsedABI.filter(
-        (item) => item.type === "function" && (item.stateMutability === "view" || item.stateMutability === "pure")
+        (item) =>
+          item.type === "function" &&
+          (item.stateMutability === "view" || item.stateMutability === "pure")
       );
       const writeFuncs = parsedABI.filter(
-        (item) => item.type === "function" && (item.stateMutability === "nonpayable" || item.stateMutability === "payable")
+        (item) =>
+          item.type === "function" &&
+          (item.stateMutability === "nonpayable" ||
+            item.stateMutability === "payable")
       );
 
       setReadFunctions(readFuncs);
@@ -170,7 +176,9 @@ function App() {
       // Check if the function is payable
       const options = {};
       if (func.stateMutability === "payable") {
-        const etherValue = prompt("Enter ETH value to send with this transaction:");
+        const etherValue = prompt(
+          "Enter ETH value to send with this transaction:"
+        );
         if (etherValue) {
           options.value = ethers.parseEther(etherValue);
         }
@@ -196,48 +204,51 @@ function App() {
     setLoadingStates((prev) => ({ ...prev, [func.name]: false }));
   };
 
-
-
-
   return (
-    <div className="App">
-      <h1>My DApp - Contract Interaction</h1>
-
-      {!isConnected ? (
-        <button onClick={connectWallet} className="connect-button">
-          Connect Wallet
-        </button>
-      ) : (
-        <div className="connected-container">
-          <p>Wallet Connected</p>
-          <p>Wallet Address: {window.ethereum.selectedAddress}</p>
-
-          <button onClick={disconnectWallet} className="disconnect-button">
-            Disconnect Wallet
+    <div className="app-container">
+      <header className="app-header">
+        <img src={logo} alt="OpenABI Logo" className="app-logo" />
+        <h1>OpenABI Explorer</h1>
+      </header>
+      <main className="app-content">
+        {!isConnected ? (
+          <button onClick={connectWallet} className="connect-button">
+            Connect Wallet
           </button>
+        ) : (
+          <div>
+            <div className="wallet-info">
+              <p>Wallet Connected</p>
+              <p>Wallet Address: {window.ethereum.selectedAddress}</p>
 
-          {/* Inputs for contract address and ABI */}
-          <div className="contract-inputs">
-            <input
-              type="text"
-              placeholder="Enter Contract Address"
-              value={contractAddress}
-              onChange={(e) => setContractAddress(e.target.value)}
-              className="input"
-            />
-            <textarea
-              placeholder="Enter Contract ABI (JSON format)"
-              value={abiInput}
-              onChange={(e) => setAbiInput(e.target.value)}
-              className="input abi-input"
-            ></textarea>
-            <button onClick={initializeContract} className="button">
-              Load Contract
-            </button>
-          </div>
+              <button onClick={disconnectWallet} className="disconnect-button">
+                Disconnect Wallet
+              </button>
+            </div>
 
-          {contract && (
-            <div className="sections">
+            {isConnected && (
+              <div className="contract-section">
+                <input
+                  type="text"
+                  placeholder="Enter Contract Address"
+                  value={contractAddress}
+                  onChange={(e) => setContractAddress(e.target.value)}
+                  className="input-field"
+                />
+                <textarea
+                  placeholder="Enter Contract ABI (JSON format)"
+                  value={abiInput}
+                  onChange={(e) => setAbiInput(e.target.value)}
+                  className="input-field abi-input"
+                ></textarea>
+                <button onClick={initializeContract} className="load-button">
+                  Load Contract
+                </button>
+              </div>
+            )}
+
+            {contract && (
+              <div className="sections">
               {/* Read Functions Section */}
               <div className="section">
                 <h2>Read Functions</h2>
@@ -267,9 +278,7 @@ function App() {
                       {results[func.name] && (
                         <ul className="result-list">
                           {results[func.name].split(",").map((item, index) => (
-                            <li key={index} className="result-item">
-                              {item}
-                            </li>
+                            <li key={index} className="result-item">{item}</li>
                           ))}
                         </ul>
                       )}
@@ -277,7 +286,7 @@ function App() {
                   ))}
                 </div>
               </div>
-
+            
               {/* Write Functions Section */}
               <div className="section">
                 <h2>Write Functions</h2>
@@ -309,9 +318,105 @@ function App() {
                 </div>
               </div>
             </div>
-          )}
-        </div>
-      )}
+            
+              // <div className="sections">
+              //   {/* Read Functions Section */}
+              //   <div className="section">
+              //     <h2>Read Functions</h2>
+              //     <div className="functions-container">
+              //       {readFunctions.map((func, funcIndex) => (
+              //         <div key={funcIndex} className="function-card">
+              //           <h3>{func.name}</h3>
+              //           {func.inputs.map((input, index) => (
+              //             <input
+              //               key={index}
+              //               placeholder={`${input.name} (${input.type})`}
+              //               value={(inputValues[func.name] || [])[index] || ""}
+              //               onChange={(e) =>
+              //                 handleInputChange(
+              //                   func.name,
+              //                   index,
+              //                   e.target.value
+              //                 )
+              //               }
+              //               className="input"
+              //             />
+              //           ))}
+              //           <button
+              //             onClick={() => callReadFunction(func)}
+              //             className="button"
+              //             disabled={loadingStates[func.name]}
+              //           >
+              //             {loadingStates[func.name]
+              //               ? "Loading..."
+              //               : `Call ${func.name}`}
+              //           </button>
+              //           {errorMessages[func.name] && (
+              //             <p className="error-message">
+              //               {errorMessages[func.name]}
+              //             </p>
+              //           )}
+              //           {results[func.name] && (
+              //             <ul className="result-list">
+              //               {results[func.name]
+              //                 .split(",")
+              //                 .map((item, index) => (
+              //                   <li key={index} className="result-item">
+              //                     {item}
+              //                   </li>
+              //                 ))}
+              //             </ul>
+              //           )}
+              //         </div>
+              //       ))}
+              //     </div>
+              //   </div>
+
+              //   {/* Write Functions Section */}
+              //   <div className="section">
+              //     <h2>Write Functions</h2>
+              //     <div className="functions-container">
+              //       {writeFunctions.map((func, funcIndex) => (
+              //         <div key={funcIndex} className="function-card">
+              //           <h3>{func.name}</h3>
+              //           {func.inputs.map((input, index) => (
+              //             <input
+              //               key={index}
+              //               placeholder={`${input.name} (${input.type})`}
+              //               value={(inputValues[func.name] || [])[index] || ""}
+              //               onChange={(e) =>
+              //                 handleInputChange(
+              //                   func.name,
+              //                   index,
+              //                   e.target.value
+              //                 )
+              //               }
+              //               className="input"
+              //             />
+              //           ))}
+              //           <button
+              //             onClick={() => callWriteFunction(func)}
+              //             className="button"
+              //             disabled={loadingStates[func.name]}
+              //           >
+              //             {loadingStates[func.name]
+              //               ? "Submitting..."
+              //               : `Send ${func.name}`}
+              //           </button>
+              //           {errorMessages[func.name] && (
+              //             <p className="error-message">
+              //               {errorMessages[func.name]}
+              //             </p>
+              //           )}
+              //         </div>
+              //       ))}
+              //     </div>
+              //   </div>
+              // </div>
+            )}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

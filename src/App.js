@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { BrowserProvider, Contract, ethers } from "ethers";
 import "./App.css";
 import logo from "./assets/logo.png"; // Ensure you have the logo in the correct path
+import { useAppKitAccount } from "@reown/appkit/react";
+import HideElement from "./components/HideElement";
 
 function App() {
   const [contractAddress, setContractAddress] = useState("");
@@ -11,44 +13,15 @@ function App() {
   const [contract, setContract] = useState(null);
   const [inputValues, setInputValues] = useState({});
   const [results, setResults] = useState({});
-  const [isConnected, setIsConnected] = useState(false);
   const [loadingStates, setLoadingStates] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
+  const { isConnected } = useAppKitAccount();
 
   useEffect(() => {
     setTimeout(() => {
       setErrorMessages({});
     }, 5000);
   }, []);
-
-  // Handle connecting to the wallet
-  const connectWallet = async () => {
-    if (window.ethereum) {
-      try {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-        const provider = new BrowserProvider(window.ethereum);
-        setIsConnected(true);
-      } catch (error) {
-        console.error("Wallet connection failed:", error);
-      }
-    } else {
-      alert("Please install MetaMask!");
-    }
-  };
-
-  // Handle disconnecting the wallet
-  const disconnectWallet = () => {
-    setIsConnected(false);
-    setContract(null);
-    setContractAddress("");
-    setAbiInput("");
-    setReadFunctions([]);
-    setWriteFunctions([]);
-    setInputValues({});
-    setResults({});
-    setLoadingStates({});
-    setErrorMessages({});
-  };
 
   const initializeContract = async () => {
     if (!contractAddress || !abiInput) {
@@ -212,22 +185,22 @@ function App() {
       </header>
       <main className="app-content">
         {!isConnected ? (
-          <button onClick={connectWallet} className="connect-button">
-            Connect Wallet
+          <button className="connect-button">
+            <w3m-connect-button />
           </button>
         ) : (
           <div>
             <div className="wallet-info">
-              <p>Wallet Connected</p>
-              <p>Wallet Address: {window.ethereum.selectedAddress}</p>
-
-              <button onClick={disconnectWallet} className="disconnect-button">
-                Disconnect Wallet
-              </button>
+              <w3m-network-button />
+              <w3m-account-button balance="hide" />
             </div>
 
             {isConnected && (
               <div className="contract-section">
+                <p className="warning-message">
+                  ⚠️ Ensure your selected network matches the network where the
+                  contract is deployed.
+                </p>
                 <input
                   type="text"
                   placeholder="Enter Contract Address"
@@ -249,174 +222,104 @@ function App() {
 
             {contract && (
               <div className="sections">
-              {/* Read Functions Section */}
-              <div className="section">
-                <h2>Read Functions</h2>
-                <div className="functions-container">
-                  {readFunctions.map((func, funcIndex) => (
-                    <div key={funcIndex} className="function-card">
-                      <h3>{func.name}</h3>
-                      {func.inputs.map((input, index) => (
-                        <input
-                          key={index}
-                          placeholder={`${input.name} (${input.type})`}
-                          value={(inputValues[func.name] || [])[index] || ""}
-                          onChange={(e) => handleInputChange(func.name, index, e.target.value)}
-                          className="input"
-                        />
-                      ))}
-                      <button
-                        onClick={() => callReadFunction(func)}
-                        className="button"
-                        disabled={loadingStates[func.name]}
-                      >
-                        {loadingStates[func.name] ? "Loading..." : `Call ${func.name}`}
-                      </button>
-                      {errorMessages[func.name] && (
-                        <p className="error-message">{errorMessages[func.name]}</p>
-                      )}
-                      {results[func.name] && (
-                        <ul className="result-list">
-                          {results[func.name].split(",").map((item, index) => (
-                            <li key={index} className="result-item">{item}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
+                {/* Read Functions Section */}
+                <div className="section">
+                  <h2>Read Functions</h2>
+                  <div className="functions-container">
+                    {readFunctions.map((func, funcIndex) => (
+                      <div key={funcIndex} className="function-card">
+                        <h3>{func.name}</h3>
+                        {func.inputs.map((input, index) => (
+                          <input
+                            key={index}
+                            placeholder={`${input.name} (${input.type})`}
+                            value={(inputValues[func.name] || [])[index] || ""}
+                            onChange={(e) =>
+                              handleInputChange(
+                                func.name,
+                                index,
+                                e.target.value
+                              )
+                            }
+                            className="input"
+                          />
+                        ))}
+                        <button
+                          onClick={() => callReadFunction(func)}
+                          className="button"
+                          disabled={loadingStates[func.name]}
+                        >
+                          {loadingStates[func.name]
+                            ? "Loading..."
+                            : `Call ${func.name}`}
+                        </button>
+                        {errorMessages[func.name] && (
+                          <p className="error-message">
+                            {errorMessages[func.name]}
+                          </p>
+                        )}
+                        {results[func.name] && (
+                          <ul className="result-list">
+                            {results[func.name]
+                              .split(",")
+                              .map((item, index) => (
+                                <li key={index} className="result-item">
+                                  {item}
+                                </li>
+                              ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            
-              {/* Write Functions Section */}
-              <div className="section">
-                <h2>Write Functions</h2>
-                <div className="functions-container">
-                  {writeFunctions.map((func, funcIndex) => (
-                    <div key={funcIndex} className="function-card">
-                      <h3>{func.name}</h3>
-                      {func.inputs.map((input, index) => (
-                        <input
-                          key={index}
-                          placeholder={`${input.name} (${input.type})`}
-                          value={(inputValues[func.name] || [])[index] || ""}
-                          onChange={(e) => handleInputChange(func.name, index, e.target.value)}
-                          className="input"
-                        />
-                      ))}
-                      <button
-                        onClick={() => callWriteFunction(func)}
-                        className="button"
-                        disabled={loadingStates[func.name]}
-                      >
-                        {loadingStates[func.name] ? "Submitting..." : `Send ${func.name}`}
-                      </button>
-                      {errorMessages[func.name] && (
-                        <p className="error-message">{errorMessages[func.name]}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            
-              // <div className="sections">
-              //   {/* Read Functions Section */}
-              //   <div className="section">
-              //     <h2>Read Functions</h2>
-              //     <div className="functions-container">
-              //       {readFunctions.map((func, funcIndex) => (
-              //         <div key={funcIndex} className="function-card">
-              //           <h3>{func.name}</h3>
-              //           {func.inputs.map((input, index) => (
-              //             <input
-              //               key={index}
-              //               placeholder={`${input.name} (${input.type})`}
-              //               value={(inputValues[func.name] || [])[index] || ""}
-              //               onChange={(e) =>
-              //                 handleInputChange(
-              //                   func.name,
-              //                   index,
-              //                   e.target.value
-              //                 )
-              //               }
-              //               className="input"
-              //             />
-              //           ))}
-              //           <button
-              //             onClick={() => callReadFunction(func)}
-              //             className="button"
-              //             disabled={loadingStates[func.name]}
-              //           >
-              //             {loadingStates[func.name]
-              //               ? "Loading..."
-              //               : `Call ${func.name}`}
-              //           </button>
-              //           {errorMessages[func.name] && (
-              //             <p className="error-message">
-              //               {errorMessages[func.name]}
-              //             </p>
-              //           )}
-              //           {results[func.name] && (
-              //             <ul className="result-list">
-              //               {results[func.name]
-              //                 .split(",")
-              //                 .map((item, index) => (
-              //                   <li key={index} className="result-item">
-              //                     {item}
-              //                   </li>
-              //                 ))}
-              //             </ul>
-              //           )}
-              //         </div>
-              //       ))}
-              //     </div>
-              //   </div>
 
-              //   {/* Write Functions Section */}
-              //   <div className="section">
-              //     <h2>Write Functions</h2>
-              //     <div className="functions-container">
-              //       {writeFunctions.map((func, funcIndex) => (
-              //         <div key={funcIndex} className="function-card">
-              //           <h3>{func.name}</h3>
-              //           {func.inputs.map((input, index) => (
-              //             <input
-              //               key={index}
-              //               placeholder={`${input.name} (${input.type})`}
-              //               value={(inputValues[func.name] || [])[index] || ""}
-              //               onChange={(e) =>
-              //                 handleInputChange(
-              //                   func.name,
-              //                   index,
-              //                   e.target.value
-              //                 )
-              //               }
-              //               className="input"
-              //             />
-              //           ))}
-              //           <button
-              //             onClick={() => callWriteFunction(func)}
-              //             className="button"
-              //             disabled={loadingStates[func.name]}
-              //           >
-              //             {loadingStates[func.name]
-              //               ? "Submitting..."
-              //               : `Send ${func.name}`}
-              //           </button>
-              //           {errorMessages[func.name] && (
-              //             <p className="error-message">
-              //               {errorMessages[func.name]}
-              //             </p>
-              //           )}
-              //         </div>
-              //       ))}
-              //     </div>
-              //   </div>
-              // </div>
+                {/* Write Functions Section */}
+                <div className="section">
+                  <h2>Write Functions</h2>
+                  <div className="functions-container">
+                    {writeFunctions.map((func, funcIndex) => (
+                      <div key={funcIndex} className="function-card">
+                        <h3>{func.name}</h3>
+                        {func.inputs.map((input, index) => (
+                          <input
+                            key={index}
+                            placeholder={`${input.name} (${input.type})`}
+                            value={(inputValues[func.name] || [])[index] || ""}
+                            onChange={(e) =>
+                              handleInputChange(
+                                func.name,
+                                index,
+                                e.target.value
+                              )
+                            }
+                            className="input"
+                          />
+                        ))}
+                        <button
+                          onClick={() => callWriteFunction(func)}
+                          className="button"
+                          disabled={loadingStates[func.name]}
+                        >
+                          {loadingStates[func.name]
+                            ? "Submitting..."
+                            : `Send ${func.name}`}
+                        </button>
+                        {errorMessages[func.name] && (
+                          <p className="error-message">
+                            {errorMessages[func.name]}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         )}
       </main>
+      <HideElement />
     </div>
   );
 }

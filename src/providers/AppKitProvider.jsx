@@ -6,20 +6,21 @@ import {mainnet, arbitrum, polygon, optimism, sepolia} from '@reown/appkit/netwo
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { vanarMainnet, vanarTestNet, vanguard } from '../config/customChains';
+import icon from "./assets/logo.png"; // Ensure you have the logo in the correct path
 
 // 0. Setup queryClient
 const queryClient = new QueryClient()
 
 // 1. Get projectId from https://cloud.reown.com
-const projectId = '4719d3708f4c5626f9717ce01b88ff71'
+const projectId = '9e503f707417be1f6eb865081c5781c1'
 
 // 2. Create a metadata object - optional
 const metadata = {
-  name: 'Virtua WalletConnect',
-  description: 'Virtua WalletConnect',
-  url: 'https://reown.com/appkit', // origin must match your domain & subdomain
-  icons: ['https://imagedelivery.net/_aTEfDRm7z3tKgu9JhfeKA/ca16e451-ee3b-401b-9432-f28febd59800/sm']
-}
+  name: 'OpenABI Explorer',
+  description: 'OpenABI Explorer',
+  url: 'https://reown.com/appkit',
+  icons: [icon] // Dynamically load the local file
+};
 
 // 3. Set the networks (Only allow popular networks)
 const networks = [

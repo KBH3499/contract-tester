@@ -6,7 +6,7 @@ import {mainnet, arbitrum, polygon, optimism, sepolia} from '@reown/appkit/netwo
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { vanarMainnet, vanarTestNet, vanguard } from '../config/customChains';
-import icon from "./assets/logo.png"; // Ensure you have the logo in the correct path
+import icon from "../assets/logo.png"; // Ensure you have the logo in the correct path
 
 // 0. Setup queryClient
 const queryClient = new QueryClient()

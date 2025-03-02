@@ -2,7 +2,6 @@
   "name": "my-dapp",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://kbh3499.github.io/contract-tester",
   "dependencies": {
     "@reown/appkit": "^1.6.9",
     "@reown/appkit-adapter-wagmi": "^1.6.9",

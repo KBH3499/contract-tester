@@ -18,7 +18,7 @@ const projectId = '9e503f707417be1f6eb865081c5781c1'
 const metadata = {
   name: 'OpenABI Explorer',
   description: 'OpenABI Explorer',
-  url: 'https://reown.com/appkit',
+  url: 'https://openabi.vercel.app',
   icons: [icon] // Dynamically load the local file
 };
 

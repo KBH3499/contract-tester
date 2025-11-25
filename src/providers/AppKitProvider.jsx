@@ -6,7 +6,7 @@ import {mainnet, polygonAmoy, polygon, sepolia, bscTestnet, bsc} from '@reown/ap
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { vanarMainnet, vanguard } from '../config/customChains';
-import icon from "../assets/logo.png"; // Ensure you have the logo in the correct path
+// import icon from "../assets/logo.png"; // Uncomment when needed for metadata icons
 
 // 0. Setup queryClient
 const queryClient = new QueryClient()

@@ -2,10 +2,10 @@
 import { createAppKit } from '@reown/appkit/react'
 
 import { WagmiProvider } from 'wagmi'
-import {mainnet, arbitrum, polygon, optimism, sepolia} from '@reown/appkit/networks';
+import {mainnet, polygonAmoy, polygon, sepolia, bscTestnet, bsc} from '@reown/appkit/networks';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { vanarMainnet, vanarTestNet, vanguard } from '../config/customChains';
+import { vanarMainnet, vanguard } from '../config/customChains';
 import icon from "../assets/logo.png"; // Ensure you have the logo in the correct path
 
 // 0. Setup queryClient
@@ -19,19 +19,19 @@ const metadata = {
   name: 'OpenABI Explorer',
   description: 'OpenABI Explorer',
   url: 'https://openabi.vercel.app',
-  icons: [icon] // Dynamically load the local file
+  // icons: [icon] // Dynamically load the local file
 };
 
 // 3. Set the networks (Only allow popular networks)
 const networks = [
-  vanarTestNet,
   vanguard,
   vanarMainnet,
   sepolia,
+  bsc,
+  bscTestnet,
   mainnet,
-  arbitrum,
-  optimism,
   polygon,
+  polygonAmoy,
 ];
 
 // 4. Create Wagmi Adapter
